@@ -8,6 +8,8 @@ PLAYER_VEL = 7
 BULLET_SPEED = 15  
 ENEMY_SPEED  = 5
 ENEMY_GENERATION_INTERVAL = 1500
+CLOUD_SPEED = 1
+CLOUD_GENERATOR_INTERVAL = 5000
 
 def move_player(player):
     keys = pygame.key.get_pressed()
@@ -16,10 +18,15 @@ def move_player(player):
     if keys[pygame.K_RIGHT] and player['x'] < WINDOW_SIZE_X - 75:
         player['x'] += PLAYER_VEL
 
-def draw_player(screen, player, bullets, enemy):#enemy
+def draw_player(screen, player, bullets, enemy, cloud):
     screen.fill((0, 128, 255))  
     sprite = player['right']
     square = sprite.get_rect().move(player['x'], player['y'])
+    #Nube
+    for obj in cloud:
+        screen.blit(obj['image'], (obj['x'], obj['y']))
+    
+    
     screen.blit(sprite, square)
 
     for obj in bullets:
@@ -28,6 +35,7 @@ def draw_player(screen, player, bullets, enemy):#enemy
     for obj in enemy:
         screen.blit(obj['image'], (obj['x'], obj['y']))
 
+
 def update_bullets(bullets):
     for obj in bullets:
         obj['y'] -= BULLET_SPEED 
@@ -35,6 +43,11 @@ def update_bullets(bullets):
 def update_enemy(enemy):
     for obj in enemy:
         obj['y'] += ENEMY_SPEED 
+#Nube
+def update_cloud(cloud):
+    for obj in cloud:
+        obj['y'] += CLOUD_SPEED 
+    
 
 
 def create_player():
@@ -59,7 +72,9 @@ def main():
     going = True
     bullets = []  # Lista para almacenar los objetos generados
     enemy = []
+    cloud = []
     time_since_last_enemy = 0
+    time_since_last_cloud = 0
     while going:
         current_time = pygame.time.get_ticks()
         for event in pygame.event.get():
@@ -77,6 +92,7 @@ def main():
         move_player(player)
         update_bullets(bullets)  
         update_enemy(enemy)
+        update_cloud(cloud)
 
         bullets = [bullet for bullet in bullets if bullet['y'] > 0]
 
@@ -91,7 +107,19 @@ def main():
 
         enemy = [enemy for enemy in enemy if enemy['y'] < 600]
 
-        draw_player(screen, player, bullets, enemy)
+
+        if current_time - time_since_last_cloud >= CLOUD_GENERATOR_INTERVAL:
+            new_cloud = {
+                'image': pygame.image.load('images/pig/cloud.png'),
+                'x': random.randint(0, 750),
+                'y': 0
+            }
+            cloud.append(new_cloud)
+            time_since_last_cloud = current_time
+
+        cloud = [cloud for cloud in cloud if cloud['y'] < 600]
+
+        draw_player(screen, player, bullets, enemy, cloud)
         pygame.display.flip()
         clock.tick(FPS)
 
