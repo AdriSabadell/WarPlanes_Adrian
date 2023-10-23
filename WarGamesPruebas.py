@@ -48,8 +48,6 @@ def update_cloud(cloud):
     for obj in cloud:
         obj['y'] += CLOUD_SPEED 
     
-
-
 def create_player():
     player = {
         'right': pygame.image.load('images/pig/USA_plane.png'),
