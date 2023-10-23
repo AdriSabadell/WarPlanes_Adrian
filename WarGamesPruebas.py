@@ -68,7 +68,7 @@ def main():
 
     clock = pygame.time.Clock()
     going = True
-    bullets = []  # Lista para almacenar los objetos generados
+    bullets = [] 
     enemy = []
     cloud = []
     time_since_last_enemy = 0
@@ -79,13 +79,12 @@ def main():
             if event.type == pygame.QUIT:
                 going = False
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                # Genera un objeto encima del jugador
                 new_object = {
                     'image': pygame.image.load('images/pig/bullet.png'),
                     'x': player['x'] + 27,
                     'y': player['y'] - 25
                 }
-                bullets.append(new_object)  # Agrega el objeto a la lista
+                bullets.append(new_object) 
 
         move_player(player)
         update_bullets(bullets)  
@@ -105,7 +104,6 @@ def main():
 
         enemy = [enemy for enemy in enemy if enemy['y'] < 600]
 
-
         if current_time - time_since_last_cloud >= CLOUD_GENERATOR_INTERVAL:
             new_cloud = {
                 'image': pygame.image.load('images/pig/cloud.png'),
@@ -120,7 +118,6 @@ def main():
         draw_player(screen, player, bullets, enemy, cloud)
         pygame.display.flip()
         clock.tick(FPS)
-
 
     pygame.quit()
 
