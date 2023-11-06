@@ -18,7 +18,7 @@ POWER_SPEED = 3
 GAME_STATE_MENU = 1
 GAME_STATE_PLAYING = 2
 GAME_STATE_WIN = 3
-GAME_STATE_LOOSE = 3
+GAME_STATE_LOOSE = 4
 GAME_STATE_EXIT = 5
 
 
@@ -91,6 +91,7 @@ def kill_enemy(bullets, enemies, player):
     for index in sorted(enemies_to_remove, reverse=True):
         del enemies[index]
 
+
 def draw_overlay(screen, font, player):
     font.render_to(screen, (50, 550), 'Puntuación: ' + str(player['points']))
 
@@ -104,6 +105,88 @@ def game_menu(screen):
     start_btn=start_btn_light
     exit_btn=exit_btn_light
     background=pygame.image.load('images/menu/fondo2.png')
+    going=True
+    while going:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                going=False
+                result=GAME_STATE_EXIT
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                square=start_btn.get_rect().move(150, 500)
+                if square.collidepoint(pygame.mouse.get_pos()):
+                    going=False
+                    result=GAME_STATE_PLAYING
+                square=exit_btn.get_rect().move(450, 500)
+                if square.collidepoint(pygame.mouse.get_pos()):
+                    going=False
+                    result=GAME_STATE_EXIT
+        square=start_btn.get_rect().move(150, 500)
+        if square.collidepoint(pygame.mouse.get_pos()):
+            start_btn=start_btn_dark
+        else:
+            start_btn=start_btn_light
+        square=exit_btn.get_rect().move(450, 500)
+        if square.collidepoint(pygame.mouse.get_pos()):
+            exit_btn=exit_btn_dark
+        else:
+            exit_btn=exit_btn_light
+        screen.blit(background, background.get_rect())
+        screen.blit(title, title.get_rect().move(400-352, 50))
+        screen.blit(start_btn, start_btn.get_rect().move(150,500))
+        screen.blit(exit_btn, exit_btn.get_rect().move(450,500))
+        pygame.display.flip()
+    return result
+
+def win_menu(screen):
+    title=pygame.image.load('images/menu/title.png')
+    start_btn_light=pygame.image.load('images/menu/start_button.png')
+    start_btn_dark=pygame.image.load('images/menu/start_buttondark.png')
+    exit_btn_light=pygame.image.load('images/menu/exit_button.png')
+    exit_btn_dark=pygame.image.load('images/menu/exit_buttondark.png')
+    start_btn=start_btn_light
+    exit_btn=exit_btn_light
+    background=pygame.image.load('images/menu/fondo2.png')
+    going=True
+    while going:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                going=False
+                result=GAME_STATE_EXIT
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                square=start_btn.get_rect().move(150, 500)
+                if square.collidepoint(pygame.mouse.get_pos()):
+                    going=False
+                    result=GAME_STATE_PLAYING
+                square=exit_btn.get_rect().move(450, 500)
+                if square.collidepoint(pygame.mouse.get_pos()):
+                    going=False
+                    result=GAME_STATE_EXIT
+        square=start_btn.get_rect().move(150, 500)
+        if square.collidepoint(pygame.mouse.get_pos()):
+            start_btn=start_btn_dark
+        else:
+            start_btn=start_btn_light
+        square=exit_btn.get_rect().move(450, 500)
+        if square.collidepoint(pygame.mouse.get_pos()):
+            exit_btn=exit_btn_dark
+        else:
+            exit_btn=exit_btn_light
+        screen.blit(background, background.get_rect())
+        screen.blit(title, title.get_rect().move(400-352, 50))
+        screen.blit(start_btn, start_btn.get_rect().move(150,500))
+        screen.blit(exit_btn, exit_btn.get_rect().move(450,500))
+        pygame.display.flip()
+    return result
+
+def loose_menu(screen):
+    title=pygame.image.load('images/menu/title.png')
+    start_btn_light=pygame.image.load('images/menu/start_button.png')
+    start_btn_dark=pygame.image.load('images/menu/start_buttondark.png')
+    exit_btn_light=pygame.image.load('images/menu/exit_button.png')
+    exit_btn_dark=pygame.image.load('images/menu/exit_buttondark.png')
+    start_btn=start_btn_light
+    exit_btn=exit_btn_light
+    background=pygame.image.load('images/menu/fondoloose.png')
     going=True
     while going:
         for event in pygame.event.get():
@@ -224,9 +307,8 @@ def game_playing(screen):
             if power_rect.colliderect(player_rect):
                 print("¡muerte!")
                 enemy.remove(p)
-
-    
-        
+                going = False
+                result=GAME_STATE_LOOSE
 
         draw_player(screen, player, bullets, enemy, cloud, power)
         draw_overlay(screen, overlay_font, player)
@@ -252,9 +334,9 @@ def main():
         elif game_state==GAME_STATE_PLAYING:
             game_state=game_playing(screen)
         elif game_state==GAME_STATE_WIN:
-            game_state=game_playing(screen)
+            game_state=win_menu(screen)
         elif game_state==GAME_STATE_LOOSE:
-            game_state=game_playing(screen)
+            game_state=loose_menu(screen)
 
     pygame.quit()
 
