@@ -20,6 +20,7 @@ GAME_STATE_PLAYING = 2
 GAME_STATE_RESULTS = 3
 GAME_STATE_EXIT = 4
 
+
 def move_player(player):
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT] and player['x'] > 0:
@@ -94,16 +95,63 @@ def kill_enemy(bullets, enemies, player):
 def draw_overlay(screen, font, player):
     font.render_to(screen, (50, 550), 'Puntuación: ' + str(player['points']))
 
-def main():
-    pygame.init()
-    screen = pygame.display.set_mode([WINDOW_SIZE_X, WINDOW_SIZE_Y])
-    game_icon = pygame.image.load('images/icon.png')
+
+
+
+
+
+
+
+
+
+
+
+
+
+def game_menu(screen):
+    title=pygame.image.load('images/menu/title.png')
+    start_btn_light=pygame.image.load('images/menu/start_button.png')
+    start_btn_dark=pygame.image.load('images/menu/start_buttondark.png')
+    exit_btn_light=pygame.image.load('images/menu/exit_button.png')
+    exit_btn_dark=pygame.image.load('images/menu/exit_buttondark.png')
+    start_btn=start_btn_light
+    exit_btn=exit_btn_light
+    background=pygame.image.load('images/menu/fondo2.png')
+    going=True
+    while going:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                going=False
+                result=GAME_STATE_EXIT
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                square=start_btn.get_rect().move(150, 500)
+                if square.collidepoint(pygame.mouse.get_pos()):
+                    going=False
+                    result=GAME_STATE_PLAYING
+                square=exit_btn.get_rect().move(450, 500)
+                if square.collidepoint(pygame.mouse.get_pos()):
+                    going=False
+                    result=GAME_STATE_EXIT
+        square=start_btn.get_rect().move(150, 500)
+        if square.collidepoint(pygame.mouse.get_pos()):
+            start_btn=start_btn_dark
+        else:
+            start_btn=start_btn_light
+        square=exit_btn.get_rect().move(450, 500)
+        if square.collidepoint(pygame.mouse.get_pos()):
+            exit_btn=exit_btn_dark
+        else:
+            exit_btn=exit_btn_light
+        screen.blit(background, background.get_rect())
+        screen.blit(title, title.get_rect().move(400-352, 50))
+        screen.blit(start_btn, start_btn.get_rect().move(150,500))
+        screen.blit(exit_btn, exit_btn.get_rect().move(450,500))
+        pygame.display.flip()
+    return result
+
+def game_playing(screen):
     player = create_player()
-
     overlay_font = pygame.freetype.Font("fonts/Lato-Black.ttf", 32)
-
-    pygame.display.set_caption('Exemple 5')
-    pygame.display.set_icon(game_icon)
 
     clock = pygame.time.Clock()
     going = True
@@ -122,6 +170,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 going = False
+                result=GAME_STATE_MENU
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 new_object = {
                     'image': pygame.image.load('images/pig/bullet.png'),
@@ -136,7 +185,6 @@ def main():
         update_cloud(cloud)
         update_power(power)
         kill_enemy(bullets, enemy, player)
-
 
         bullets = [bullet for bullet in bullets if bullet['y'] > 0]
 
@@ -190,7 +238,7 @@ def main():
                 print("¡muerte!")
                 enemy.remove(p)
 
-
+    
         
 
         draw_player(screen, player, bullets, enemy, cloud, power)
@@ -198,7 +246,25 @@ def main():
         pygame.display.flip()
         clock.tick(FPS)
 
-    pygame.quit()
+    return result
 
+
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode([WINDOW_SIZE_X, WINDOW_SIZE_Y])
+    game_icon = pygame.image.load('images/icon.png')
+    
+    pygame.display.set_caption('Exemple 5')
+    pygame.display.set_icon(game_icon)
+
+
+    game_state=GAME_STATE_MENU
+    while game_state!=GAME_STATE_EXIT:
+        if game_state==GAME_STATE_MENU:
+            game_state=game_menu(screen)
+        elif game_state==GAME_STATE_PLAYING:
+            game_state=game_playing(screen)
+
+    pygame.quit()
 
 main()
