@@ -17,8 +17,9 @@ POWER_SPEED = 3
 # game states
 GAME_STATE_MENU = 1
 GAME_STATE_PLAYING = 2
-GAME_STATE_RESULTS = 3
-GAME_STATE_EXIT = 4
+GAME_STATE_WIN = 3
+GAME_STATE_LOOSE = 3
+GAME_STATE_EXIT = 5
 
 
 def move_player(player):
@@ -90,22 +91,8 @@ def kill_enemy(bullets, enemies, player):
     for index in sorted(enemies_to_remove, reverse=True):
         del enemies[index]
 
-
-
 def draw_overlay(screen, font, player):
     font.render_to(screen, (50, 550), 'Puntuación: ' + str(player['points']))
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 def game_menu(screen):
@@ -263,6 +250,10 @@ def main():
         if game_state==GAME_STATE_MENU:
             game_state=game_menu(screen)
         elif game_state==GAME_STATE_PLAYING:
+            game_state=game_playing(screen)
+        elif game_state==GAME_STATE_WIN:
+            game_state=game_playing(screen)
+        elif game_state==GAME_STATE_LOOSE:
             game_state=game_playing(screen)
 
     pygame.quit()
