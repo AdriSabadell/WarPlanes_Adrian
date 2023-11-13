@@ -6,20 +6,25 @@ FPS = 60
 WINDOW_SIZE_X = 800
 WINDOW_SIZE_Y = 600
 PLAYER_VEL = 7
-BULLET_SPEED = 15  
+BULLET_SPEED = 13  
 ENEMY_SPEED = 5
 ENEMY_GENERATION_INTERVAL = 1500
 CLOUD_SPEED = 1
 CLOUD_GENERATOR_INTERVAL = 5000
 POWER_UP_GENERATION_INTERVAL = 10000
 POWER_SPEED = 3
+TOTAL_TIME = 60
 
 # game states
 GAME_STATE_MENU = 1
-GAME_STATE_PLAYING = 2
+GAME_STATE_PLAYING1 = 2
 GAME_STATE_WIN = 3
 GAME_STATE_LOOSE = 4
 GAME_STATE_EXIT = 5
+GAME_STATE_PLAYING2 = 6
+GAME_STATE_VICTORY = 7
+
+
 
 
 def move_player(player):
@@ -47,6 +52,8 @@ def draw_player(screen, player, bullets, enemy, cloud, power):
 
     for obj in power:
         screen.blit(obj['image'], (obj['x'], obj['y']))
+    
+
 
 def update_bullets(bullets):
     for obj in bullets:
@@ -63,6 +70,7 @@ def update_cloud(cloud):
 def update_power(power):
     for obj in power:
         obj['y'] += POWER_SPEED
+
 
 def create_player():
     player = {
@@ -83,7 +91,8 @@ def kill_enemy(bullets, enemies, player):
             if bullet_rect.colliderect(enemy_rect):
                 bullets_to_remove.append(bullets.index(bullet))
                 enemies_to_remove.append(idx)
-                player['points'] += 1  # Aumenta la puntuación al eliminar un enemigo
+                player['points'] += 1 
+
 
     for index in sorted(bullets_to_remove, reverse=True):
         del bullets[index]
@@ -92,11 +101,22 @@ def kill_enemy(bullets, enemies, player):
         del enemies[index]
 
 
+def load_sounds():
+    bite_sounds=[]
+    for n in range(1,5):
+        name="sounds/bite"+str(n)+".wav"
+        bite_sounds.append(pygame.mixer.Sound(name))
+    return bite_sounds
+
+
+
+
 def draw_overlay(screen, font, player):
     font.render_to(screen, (50, 550), 'Puntuación: ' + str(player['points']))
 
 
 def game_menu(screen):
+    pygame.mixer.music.play()
     title=pygame.image.load('images/menu/title.png')
     start_btn_light=pygame.image.load('images/menu/start_button.png')
     start_btn_dark=pygame.image.load('images/menu/start_buttondark.png')
@@ -115,7 +135,7 @@ def game_menu(screen):
                 square=start_btn.get_rect().move(150, 500)
                 if square.collidepoint(pygame.mouse.get_pos()):
                     going=False
-                    result=GAME_STATE_PLAYING
+                    result=GAME_STATE_PLAYING1
                 square=exit_btn.get_rect().move(450, 500)
                 if square.collidepoint(pygame.mouse.get_pos()):
                     going=False
@@ -156,7 +176,7 @@ def win_menu(screen):
                 square=start_btn.get_rect().move(150, 500)
                 if square.collidepoint(pygame.mouse.get_pos()):
                     going=False
-                    result=GAME_STATE_PLAYING
+                    result=GAME_STATE_PLAYING2
                 square=exit_btn.get_rect().move(450, 500)
                 if square.collidepoint(pygame.mouse.get_pos()):
                     going=False
@@ -197,7 +217,7 @@ def loose_menu(screen):
                 square=start_btn.get_rect().move(150, 500)
                 if square.collidepoint(pygame.mouse.get_pos()):
                     going=False
-                    result=GAME_STATE_PLAYING
+                    result=GAME_STATE_PLAYING1
                 square=exit_btn.get_rect().move(450, 500)
                 if square.collidepoint(pygame.mouse.get_pos()):
                     going=False
@@ -219,7 +239,106 @@ def loose_menu(screen):
         pygame.display.flip()
     return result
 
-def game_playing(screen):
+def game_playing1(screen):
+    player = create_player()
+    overlay_font = pygame.freetype.Font("fonts/Lato-Black.ttf", 32)
+
+    clock = pygame.time.Clock()
+    going = True
+    bullets = []
+    enemy = []
+    cloud = []
+    power = []
+
+    time_since_last_enemy = 0
+    time_since_last_cloud = 0
+    time_since_last_power = 0
+
+
+    while going:
+        current_time = pygame.time.get_ticks()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                going = False
+                result=GAME_STATE_MENU
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                new_object = {
+                    'image': pygame.image.load('images/pig/bullet.png'),
+                    'x': player['x'] + 27,
+                    'y': player['y'] - 25
+
+                }
+                bullets.append(new_object)
+
+        move_player(player)
+        update_bullets(bullets)
+        update_enemy(enemy)
+        update_cloud(cloud)
+        update_power(power)
+        kill_enemy(bullets, enemy, player)
+
+        bullets = [bullet for bullet in bullets if bullet['y'] > 0]
+
+        if current_time - time_since_last_enemy >= ENEMY_GENERATION_INTERVAL:
+            new_enemy = {
+                'image': pygame.image.load('images/pig/Japan_plane.png'),
+                'x': random.randint(0, 750),
+                'y': 0
+            }
+            enemy.append(new_enemy)
+            time_since_last_enemy = current_time
+
+        enemy = [enemy for enemy in enemy if enemy['y'] < 600]
+
+        if current_time - time_since_last_cloud >= CLOUD_GENERATOR_INTERVAL:
+            new_cloud = {
+                'image': pygame.image.load('images/pig/cloud.png'),
+                'x': random.randint(0, 750),
+                'y': 0
+            }
+            cloud.append(new_cloud)
+            time_since_last_cloud = current_time
+
+        cloud = [cloud for cloud in cloud if cloud['y'] < 600]
+
+        if current_time - time_since_last_power >= POWER_UP_GENERATION_INTERVAL:
+            new_power = {
+                'image': pygame.image.load('images/pig/down1.png'),
+                'x': random.randint(0, 750),
+                'y': 0
+            }
+            power.append(new_power)
+            time_since_last_power = current_time
+
+        power = [power for power in power if power['y'] < 600]
+#Eliminar power up
+        for p in power:
+            power_rect = p['image'].get_rect().move(p['x'], p['y'])
+            player_rect = player['right'].get_rect().move(player['x'], player['y'])
+
+            if power_rect.colliderect(player_rect):
+                print("¡power-up!")
+                power.remove(p)
+
+#Eliminar enemy
+        for p in enemy:
+            power_rect = p['image'].get_rect().move(p['x'], p['y'])
+            player_rect = player['right'].get_rect().move(player['x'], player['y'])
+
+            if power_rect.colliderect(player_rect):
+                print("¡muerte!")
+                enemy.remove(p)
+                going = False
+                result=GAME_STATE_LOOSE
+
+        draw_player(screen, player, bullets, enemy, cloud, power)
+        draw_overlay(screen, overlay_font, player)
+        pygame.display.flip()
+        clock.tick(FPS)
+
+    return result
+
+def game_playing2(screen):
     player = create_player()
     overlay_font = pygame.freetype.Font("fonts/Lato-Black.ttf", 32)
 
@@ -318,10 +437,16 @@ def game_playing(screen):
     return result
 
 
+def load_resources():
+    resources = {}
+    resources['music']=pygame.mixer.music.load("sounds/Music.mp3")
+    return resources
 def main():
     pygame.init()
     screen = pygame.display.set_mode([WINDOW_SIZE_X, WINDOW_SIZE_Y])
     game_icon = pygame.image.load('images/icon.png')
+
+    resources = load_resources()
     
     pygame.display.set_caption('Exemple 5')
     pygame.display.set_icon(game_icon)
@@ -331,8 +456,10 @@ def main():
     while game_state!=GAME_STATE_EXIT:
         if game_state==GAME_STATE_MENU:
             game_state=game_menu(screen)
-        elif game_state==GAME_STATE_PLAYING:
-            game_state=game_playing(screen)
+        elif game_state==GAME_STATE_PLAYING1:
+            game_state=game_playing1(screen)
+        elif game_state==GAME_STATE_PLAYING2:
+            game_state=game_playing2(screen)
         elif game_state==GAME_STATE_WIN:
             game_state=win_menu(screen)
         elif game_state==GAME_STATE_LOOSE:
