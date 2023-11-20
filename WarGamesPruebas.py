@@ -212,7 +212,8 @@ def game_menu(screen):
     return result
 
 def win_menu(screen):
-    title=pygame.image.load('images/menu/title.png')
+    #title=pygame.image.load('images/menu/title.png')
+    win_music = pygame.mixer.Sound('sounds/Music_Win.mp3')
     start_btn_light=pygame.image.load('images/menu/start_button.png')
     start_btn_dark=pygame.image.load('images/menu/start_buttondark.png')
     exit_btn_light=pygame.image.load('images/menu/exit_button.png')
@@ -246,11 +247,12 @@ def win_menu(screen):
         else:
             exit_btn=exit_btn_light
         screen.blit(background, background.get_rect())
-        screen.blit(title, title.get_rect().move(400-352, 50))
+        #screen.blit(title, title.get_rect().move(400-352, 50))
         screen.blit(start_btn, start_btn.get_rect().move(150,500))
         screen.blit(exit_btn, exit_btn.get_rect().move(450,500))
         pygame.display.flip()
-        
+        win_music.play()
+    win_music.stop() 
     return result
 
 def loose_menu(screen):
