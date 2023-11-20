@@ -18,7 +18,7 @@ TOTAL_TIME = 60
 ENEMY_SPEED_BOSS = 8
 ENEMY_BOSS_GENERATION_INTERVAL = 4250
 ORIGINAL_BULLET_SPEED = BULLET_SPEED
-POWER_UP_DURATION = 10000  
+POWER_UP_DURATION = 10000  # Duración en milisegundos (10 segundos)
 power_up_active = False
 power_up_start_time = 0
 
@@ -46,6 +46,7 @@ def move_player(player):
         player['moving_left'] = False
         player['moving_right'] = True
     else:
+        # El jugador no se está moviendo en ninguna dirección
         player['moving_left'] = False
         player['moving_right'] = False
 
@@ -357,7 +358,7 @@ def game_playing1(screen):
 
         if current_time - time_since_last_boss >= ENEMY_BOSS_GENERATION_INTERVAL:
             new_boss = {
-                'image': pygame.image.load('images/pig/Japan_plane.png'),
+                'image': pygame.image.load('images/pig/Japan_boss.png'),
                 'x': random.randint(0, 750),
                 'y': 0
                 
@@ -381,7 +382,7 @@ def game_playing1(screen):
 
         if current_time - time_since_last_power >= POWER_UP_GENERATION_INTERVAL:
             new_power = {
-                'image': pygame.image.load('images/pig/down1.png'),
+                'image': pygame.image.load('images/pig/power.png'),
                 'x': random.randint(0, 750),
                 'y': 0
             }
@@ -488,7 +489,7 @@ def game_playing2(screen):
 
         if current_time - time_since_last_enemy >= ENEMY_GENERATION_INTERVAL:
             new_enemy = {
-                'image': pygame.image.load('images/pig/Japan_plane.png'),
+                'image': pygame.image.load('images/pig/Japan_boss.png'),
                 'x': random.randint(0, 750),
                 'y': 0
             }
@@ -523,7 +524,7 @@ def game_playing2(screen):
 
         if current_time - time_since_last_power >= POWER_UP_GENERATION_INTERVAL:
             new_power = {
-                'image': pygame.image.load('images/pig/down1.png'),
+                'image': pygame.image.load('images/pig/power.png'),
                 'x': random.randint(0, 750),
                 'y': 0
             }

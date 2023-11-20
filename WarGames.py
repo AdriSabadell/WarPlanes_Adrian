@@ -6,7 +6,7 @@ FPS = 60
 WINDOW_SIZE_X = 800
 WINDOW_SIZE_Y = 600
 PLAYER_VEL = 7
-PLAYER_POWER_VEL = 10
+PLAYER_POWER_VEL = 7
 BULLET_SPEED = 13  
 ENEMY_SPEED = 5
 ENEMY_GENERATION_INTERVAL = 1500
@@ -18,9 +18,6 @@ TOTAL_TIME = 60
 ENEMY_SPEED_BOSS = 8
 ENEMY_BOSS_GENERATION_INTERVAL = 4250
 ORIGINAL_BULLET_SPEED = BULLET_SPEED
-POWER_UP_DURATION = 10000  
-power_up_active = False
-power_up_start_time = 0
 
 # game states
 GAME_STATE_MENU = 1
@@ -34,18 +31,17 @@ GAME_STATE_VICTORY = 7
 
 
 def move_player(player):
-    global PLAYER_VEL, power_up_active, power_up_start_time
-
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT] and player['x'] > 0:
-        player['x'] -= (PLAYER_POWER_VEL if power_up_active else PLAYER_VEL)
+        player['x'] -= PLAYER_VEL
         player['moving_left'] = True
         player['moving_right'] = False
     elif keys[pygame.K_RIGHT] and player['x'] < WINDOW_SIZE_X - 75:
-        player['x'] += (PLAYER_POWER_VEL if power_up_active else PLAYER_VEL)
+        player['x'] += PLAYER_VEL
         player['moving_left'] = False
         player['moving_right'] = True
     else:
+        # El jugador no se está moviendo en ninguna dirección
         player['moving_left'] = False
         player['moving_right'] = False
 
@@ -315,7 +311,6 @@ def game_playing1(screen):
     time_since_last_power = 0
     time_since_last_boss = 0
 
-    global power_up_active, power_up_start_time
 
     while going:
         current_time = pygame.time.get_ticks()
@@ -396,13 +391,7 @@ def game_playing1(screen):
 
             if power_rect.colliderect(player_rect):
                 print("¡power-up!")
-                power_up_active = True
-                power_up_start_time = current_time
                 power.remove(p)
-
-        # Desactivar power-up después de 10 segundos
-        if power_up_active and current_time - power_up_start_time >= POWER_UP_DURATION:
-            power_up_active = False
 
 #Eliminar player con enemy
         for p in enemy:
