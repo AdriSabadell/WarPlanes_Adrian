@@ -6,7 +6,7 @@ FPS = 60
 WINDOW_SIZE_X = 800
 WINDOW_SIZE_Y = 600
 PLAYER_VEL = 7
-PLAYER_POWER_VEL = 7
+PLAYER_POWER_VEL = 10
 BULLET_SPEED = 13  
 ENEMY_SPEED = 5
 ENEMY_GENERATION_INTERVAL = 1500
@@ -18,6 +18,9 @@ TOTAL_TIME = 60
 ENEMY_SPEED_BOSS = 8
 ENEMY_BOSS_GENERATION_INTERVAL = 4250
 ORIGINAL_BULLET_SPEED = BULLET_SPEED
+POWER_UP_DURATION = 10000  
+power_up_active = False
+power_up_start_time = 0
 
 # game states
 GAME_STATE_MENU = 1
@@ -31,13 +34,15 @@ GAME_STATE_VICTORY = 7
 
 
 def move_player(player):
+    global PLAYER_VEL, power_up_active, power_up_start_time
+
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT] and player['x'] > 0:
-        player['x'] -= PLAYER_VEL
+        player['x'] -= (PLAYER_POWER_VEL if power_up_active else PLAYER_VEL)
         player['moving_left'] = True
         player['moving_right'] = False
     elif keys[pygame.K_RIGHT] and player['x'] < WINDOW_SIZE_X - 75:
-        player['x'] += PLAYER_VEL
+        player['x'] += (PLAYER_POWER_VEL if power_up_active else PLAYER_VEL)
         player['moving_left'] = False
         player['moving_right'] = True
     else:
@@ -53,7 +58,7 @@ player_images = {
 
 
 def draw_player(screen, player, bullets, enemy, cloud, power, boss):
-    screen.fill((0, 128, 255))
+    #screen.fill((0, 128, 255))
 
     if player['moving_left']:
         sprite = player_images['left']
@@ -207,7 +212,8 @@ def game_menu(screen):
     return result
 
 def win_menu(screen):
-    title=pygame.image.load('images/menu/title.png')
+    #title=pygame.image.load('images/menu/title.png')
+    win_music = pygame.mixer.Sound('sounds/Music_Win.mp3')
     start_btn_light=pygame.image.load('images/menu/start_button.png')
     start_btn_dark=pygame.image.load('images/menu/start_buttondark.png')
     exit_btn_light=pygame.image.load('images/menu/exit_button.png')
@@ -241,11 +247,12 @@ def win_menu(screen):
         else:
             exit_btn=exit_btn_light
         screen.blit(background, background.get_rect())
-        screen.blit(title, title.get_rect().move(400-352, 50))
+        #screen.blit(title, title.get_rect().move(400-352, 50))
         screen.blit(start_btn, start_btn.get_rect().move(150,500))
         screen.blit(exit_btn, exit_btn.get_rect().move(450,500))
         pygame.display.flip()
-        
+        win_music.play()
+    win_music.stop() 
     return result
 
 def loose_menu(screen):
@@ -293,6 +300,7 @@ def loose_menu(screen):
     return result
 
 def game_playing1(screen):
+    background=pygame.image.load('images/menu/WarBackground1.png')
     player = create_player()
     overlay_font = pygame.freetype.Font("fonts/Lato-Black.ttf", 32)
 
@@ -311,6 +319,7 @@ def game_playing1(screen):
     time_since_last_power = 0
     time_since_last_boss = 0
 
+    global power_up_active, power_up_start_time
 
     while going:
         current_time = pygame.time.get_ticks()
@@ -352,7 +361,7 @@ def game_playing1(screen):
 
         if current_time - time_since_last_boss >= ENEMY_BOSS_GENERATION_INTERVAL:
             new_boss = {
-                'image': pygame.image.load('images/pig/Japan_plane.png'),
+                'image': pygame.image.load('images/pig/Japan_boss.png'),
                 'x': random.randint(0, 750),
                 'y': 0
                 
@@ -376,7 +385,7 @@ def game_playing1(screen):
 
         if current_time - time_since_last_power >= POWER_UP_GENERATION_INTERVAL:
             new_power = {
-                'image': pygame.image.load('images/pig/down1.png'),
+                'image': pygame.image.load('images/pig/power.png'),
                 'x': random.randint(0, 750),
                 'y': 0
             }
@@ -391,7 +400,13 @@ def game_playing1(screen):
 
             if power_rect.colliderect(player_rect):
                 print("¡power-up!")
+                power_up_active = True
+                power_up_start_time = current_time
                 power.remove(p)
+
+        # Desactivar power-up después de 10 segundos
+        if power_up_active and current_time - power_up_start_time >= POWER_UP_DURATION:
+            power_up_active = False
 
 #Eliminar player con enemy
         for p in enemy:
@@ -419,6 +434,7 @@ def game_playing1(screen):
             going = False
             result = GAME_STATE_PLAYING2
         
+        screen.blit(background, background.get_rect())
 
         draw_player(screen, player, bullets, enemy, cloud, power, boss)
         draw_overlay(screen, overlay_font, player)
@@ -488,7 +504,7 @@ def game_playing2(screen):
 
         if current_time - time_since_last_boss >= ENEMY_BOSS_GENERATION_INTERVAL:
             new_boss = {
-                'image': pygame.image.load('images/pig/Japan_plane.png'),
+                'image': pygame.image.load('images/pig/Japan_boss.png'),
                 'x': random.randint(0, 750),
                 'y': 0
                 
@@ -512,7 +528,7 @@ def game_playing2(screen):
 
         if current_time - time_since_last_power >= POWER_UP_GENERATION_INTERVAL:
             new_power = {
-                'image': pygame.image.load('images/pig/down1.png'),
+                'image': pygame.image.load('images/pig/power.png'),
                 'x': random.randint(0, 750),
                 'y': 0
             }
