@@ -489,7 +489,7 @@ def game_playing2(screen):
 
         if current_time - time_since_last_enemy >= ENEMY_GENERATION_INTERVAL:
             new_enemy = {
-                'image': pygame.image.load('images/pig/Japan_boss.png'),
+                'image': pygame.image.load('images/pig/Japan_plane.png'),
                 'x': random.randint(0, 750),
                 'y': 0
             }
@@ -500,7 +500,7 @@ def game_playing2(screen):
 
         if current_time - time_since_last_boss >= ENEMY_BOSS_GENERATION_INTERVAL:
             new_boss = {
-                'image': pygame.image.load('images/pig/Japan_plane.png'),
+                'image': pygame.image.load('images/pig/Japan_boss.png'),
                 'x': random.randint(0, 750),
                 'y': 0
                 
