@@ -46,7 +46,6 @@ def move_player(player):
         player['moving_left'] = False
         player['moving_right'] = True
     else:
-        # El jugador no se está moviendo en ninguna dirección
         player['moving_left'] = False
         player['moving_right'] = False
 
@@ -58,7 +57,7 @@ player_images = {
 
 
 def draw_player(screen, player, bullets, enemy, cloud, power, boss):
-    #screen.fill((0, 128, 255))
+    screen.fill((0, 128, 255))
 
     if player['moving_left']:
         sprite = player_images['left']
@@ -376,7 +375,7 @@ def game_playing1(screen):
             new_cloud = {
                 'image': pygame.image.load('images/pig/cloud.png'),
                 'x': random.randint(0, 750),
-                'y': 0
+                'y': -150
             }
             cloud.append(new_cloud)
             time_since_last_cloud = current_time
@@ -404,7 +403,6 @@ def game_playing1(screen):
                 power_up_start_time = current_time
                 power.remove(p)
 
-        # Desactivar power-up después de 10 segundos
         if power_up_active and current_time - power_up_start_time >= POWER_UP_DURATION:
             power_up_active = False
 
